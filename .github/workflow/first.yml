@@ -1,0 +1,24 @@
+name: Webhook Triggered Workflow
+
+# Trigger the workflow manually using webhook
+on:
+  workflow_dispatch:
+    inputs:
+      first_name:
+        description: "Enter the first name"
+        required: true
+        default: "John"
+      last_name:
+        description: "Enter the last name"
+        required: true
+        default: "Doe"
+
+jobs:
+  print_name:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Print first and last name using echo
+      - name: Print Name
+        run: |
+          echo "Hello, ${{ github.event.inputs.first_name }} ${{ github.event.inputs.last_name }}!"
