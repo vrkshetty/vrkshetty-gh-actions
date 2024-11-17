@@ -1,0 +1,53 @@
+name: First Test 
+
+on:
+  workflow_dispatch:
+    inputs:
+      MNC:
+        description: "Enter MNC"
+        required: true
+      MCC:
+        description: "MCC"
+        required: true
+
+jobs:
+  first_test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout the workflow repository
+      - name: Checkout workflow repository
+        uses: actions/checkout@v3
+      
+      # Clone the target repository
+      - name: Clone target repository
+        run: |
+          git clone https://github.com/vrkshetty/vrkshetty-config-repo.git
+          cd vrkshetty-config-repo
+
+      # Create a random file
+      - name: Create random file
+        run: |
+          cd vrkshetty-config-repo
+          RANDOM_FILE="random-file-$(date +%s).txt"
+          echo "This is a random file created at $(date)" > $RANDOM_FILE
+          echo "Created file: $RANDOM_FILE"
+
+      # Commit the changes
+      - name: Commit changes
+        run: |
+          cd vrkshetty-config-repo
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add .
+          git commit -m "Add random file"
+
+      # Push the changes to a new branch named after the job ID
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd vrkshetty-config-repo
+          JOB_ID=${{ github.run_id }}
+          git branch "job-${JOB_ID}"
+          git push origin "job-${JOB_ID}"
