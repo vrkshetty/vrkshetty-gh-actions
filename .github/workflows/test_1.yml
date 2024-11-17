@@ -1,4 +1,4 @@
-name: First Test 
+name: First Test
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 jobs:
   first_test:
     runs-on: ubuntu-latest
-    
+
     steps:
       # Checkout the workflow repository
       - name: Checkout workflow repository
@@ -39,8 +39,8 @@ jobs:
       - name: Commit changes
         run: |
           cd vrkshetty-config-repo
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Add random file"
 
