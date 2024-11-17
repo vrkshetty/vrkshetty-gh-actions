@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       MNC:
-        description: "Enter MNC"
+        description: "Enter the first name"
         required: true
       MCC:
-        description: "MCC"
+        description: "Enter the last name"
         required: true
 
 jobs:
@@ -19,10 +19,12 @@ jobs:
       - name: Checkout workflow repository
         uses: actions/checkout@v3
       
-      # Clone the target repository
+      # Clone the target repository using GITHUB_TOKEN
       - name: Clone target repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git clone https://github.com/vrkshetty/vrkshetty-config-repo.git
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vrkshetty/vrkshetty-config-repo.git
           cd vrkshetty-config-repo
 
       # Create a random file
@@ -49,5 +51,5 @@ jobs:
         run: |
           cd vrkshetty-config-repo
           JOB_ID=${{ github.run_id }}
-          git branch "job-${JOB_ID}"
-          git push origin "job-${JOB_ID}"
+          git checkout -b "job-${JOB_ID}"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vrkshetty/vrkshetty-config-repo.git "job-${JOB_ID}"
