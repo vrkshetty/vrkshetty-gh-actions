@@ -18,13 +18,13 @@ jobs:
       # Checkout the workflow repository
       - name: Checkout workflow repository
         uses: actions/checkout@v3
-      
-      # Clone the target repository using GITHUB_TOKEN
+
+      # Clone the target repository using PAT
       - name: Clone target repository
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vrkshetty/vrkshetty-config-repo.git
+          git clone https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/vrkshetty/vrkshetty-config-repo.git
           cd vrkshetty-config-repo
 
       # Create a random file
@@ -53,3 +53,34 @@ jobs:
           JOB_ID=${{ github.run_id }}
           git checkout -b "job-${JOB_ID}"
           git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/vrkshetty/vrkshetty-config-repo.git "job-${JOB_ID}"
+
+      # Create a pull request
+      - name: Create pull request
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          PR_TITLE="Automated PR for branch job-${{ github.run_id }}"
+          PR_BODY="This PR was created automatically by GitHub Actions for branch job-${{ github.run_id }}."
+          PR_BRANCH="job-${{ github.run_id }}"
+          curl -X POST -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"title\":\"${PR_TITLE}\", \"body\":\"${PR_BODY}\", \"head\":\"${PR_BRANCH}\", \"base\":\"main\"}" \
+            https://api.github.com/repos/vrkshetty/vrkshetty-config-repo/pulls
+
+      # Merge the pull request
+      - name: Merge pull request
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          PR_BRANCH="job-${{ github.run_id }}"
+          PR_NUMBER=$(curl -s -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            https://api.github.com/repos/vrkshetty/vrkshetty-config-repo/pulls \
+            | jq -r ".[] | select(.head.ref == \"${PR_BRANCH}\") | .number")
+          if [ -n "$PR_NUMBER" ]; then
+            curl -X PUT -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"merge_method":"merge"}' \
+              https://api.github.com/repos/vrkshetty/vrkshetty-config-repo/pulls/$PR_NUMBER/merge
+          else
+            echo "Pull request not found for branch ${PR_BRANCH}"
+          fi
