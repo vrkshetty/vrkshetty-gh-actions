@@ -11,7 +11,11 @@ on:
       last_name:
         description: "Enter the last name"
         required: true
-        default: "Doe"
+      default: "Doe"
+        json_data:
+          description: 'JSON data input'
+          required: true
+          default: '{"key1": "value1", "key2": "value2"}'  
 
 jobs:
   print_name:
@@ -22,3 +26,5 @@ jobs:
       - name: Print Name
         run: |
           echo "Hello, ${{ github.event.inputs.first_name }} ${{ github.event.inputs.last_name }}!"
+          echo "${{ github.event.inputs.json_data }}" > input.json
+          cat input.json
