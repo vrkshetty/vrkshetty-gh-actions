@@ -11,11 +11,11 @@ on:
       last_name:
         description: "Enter the last name"
         required: true
-      default: "Doe"
-        json_data:
-          description: 'JSON data input'
-          required: true
-          default: '{"key1": "value1", "key2": "value2"}'  
+        default: "Doe"
+      json_data:
+        description: "JSON data input"
+        required: true
+        default: '{"key1": "value1", "key2": "value2"}'
 
 jobs:
   print_name:
